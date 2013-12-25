@@ -1463,15 +1463,15 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="extern\BouncyCastleCrypto\crypto\bccrypto.csproj">
-      <Project>{38872a5f-e87e-4fad-b109-8eb7b2e6a4a0}</Project>
-      <Name>bccrypto</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent />
     <PostBuildEvent />
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="bc-csharp\crypto\BouncyCastle.csproj">
+      <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
+      <Name>BouncyCastle</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
