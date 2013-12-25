@@ -476,7 +476,8 @@ namespace iTextSharp.text.pdf {
         * @throws NoSuchAlgorithmException on error
         */    
         public PdfPKCS7(ICipherParameters privKey, X509Certificate[] certChain, object[] crlList,
-                        String hashAlgorithm, bool hasRSAdata) {
+                        String hashAlgorithm, bool hasRSAdata,
+                        ISigner signer = null) {
             this.privKey = privKey;
             
             digestAlgorithm = (String)allowedDigests[hashAlgorithm.ToUpper(CultureInfo.InvariantCulture)];
@@ -520,7 +521,18 @@ namespace iTextSharp.text.pdf {
                 messageDigest = GetHashClass();
             }
 
-            if (privKey != null) {
+            if (signer != null)
+            {
+                sig = signer;
+                if (signer.AlgorithmName.Equals("SHA-1withRSA")) {
+                    digestEncryptionAlgorithm = ID_RSA;
+                }
+                else if (signer.AlgorithmName.Equals("SHA-1withDSA")) {
+                    digestEncryptionAlgorithm = ID_DSA;
+                }
+                else
+                    throw new ArgumentException("Unknown Signer Algorithm "+digestEncryptionAlgorithm);
+            } else if (privKey != null) {
                 sig = SignerUtilities.GetSigner(GetDigestAlgorithm());
                 sig.Init(true, privKey);
             }
