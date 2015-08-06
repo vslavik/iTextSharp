@@ -524,10 +524,10 @@ namespace iTextSharp.text.pdf {
             if (signer != null)
             {
                 sig = signer;
-                if (signer.AlgorithmName.Equals("SHA-1withRSA")) {
+                if (signer.AlgorithmName.EndsWith("withRSA")) {
                     digestEncryptionAlgorithm = ID_RSA;
                 }
-                else if (signer.AlgorithmName.Equals("SHA-1withDSA")) {
+                else if (signer.AlgorithmName.EndsWith("withDSA")) {
                     digestEncryptionAlgorithm = ID_DSA;
                 }
                 else
