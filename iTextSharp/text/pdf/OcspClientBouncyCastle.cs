@@ -60,6 +60,44 @@ using System.Collections.Generic;
 
 namespace iTextSharp.text.pdf {
 
+    public class OcspStatusException : IOException
+    {
+        public OcspStatusException(int status) : base("OCSP Error: " + MessageForStatus(status)) { Status = status; }
+
+        public readonly int Status;
+
+        private static string MessageForStatus(int status)
+        {
+            switch (status)
+            {
+                case OcspRespStatus.Successful:
+                    return "Success";
+                case OcspRespStatus.MalformedRequest:
+                    return "Malformed Request";
+                case OcspRespStatus.InternalError:
+                    return "Internal Error";
+                case OcspRespStatus.TryLater:
+                    return "Try Later";
+                case OcspRespStatus.SigRequired:
+                    return "Signature Required";
+                case OcspRespStatus.Unauthorized:
+                    return "Unauthorized";
+                default:
+                    return String.Format("Unknown error ({0})", status);
+            }
+        }    
+    }
+
+    public class OcspStatusRevokedException : Exception
+    {
+        public OcspStatusRevokedException() : base("Signing certificate was revoked") {}
+    }
+
+    public class OcspStatusUnknownException : Exception
+    {
+        public OcspStatusUnknownException() : base("Signing certificate is unknown to the issuer") {}
+    }
+
     /**
     * OcspClient implementation using BouncyCastle.
     * @author psoares
@@ -138,7 +176,7 @@ namespace iTextSharp.text.pdf {
             response.Close();
 
             if (ocspResponse.Status != 0)
-                throw new IOException("Invalid status: " + ocspResponse.Status);
+                throw new OcspStatusException(ocspResponse.Status);
             BasicOcspResp basicResponse = (BasicOcspResp) ocspResponse.GetResponseObject();
             if (basicResponse != null) {
                 SingleResp[] responses = basicResponse.Responses;
@@ -149,10 +187,10 @@ namespace iTextSharp.text.pdf {
                         return basicResponse.GetEncoded();
                     }
                     else if (status is Org.BouncyCastle.Ocsp.RevokedStatus) {
-                        throw new IOException("OCSP Status is revoked!");
+                        throw new OcspStatusRevokedException();
                     }
                     else {
-                        throw new IOException("OCSP Status is unknown!");
+                        throw new OcspStatusUnknownException();
                     }
                 }
             }
